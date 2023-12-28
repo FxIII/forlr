@@ -5,6 +5,9 @@ var io = require('socket.io')(http);
 app.get('/', function(req, res){
   res.sendFile('/index.html');
 });
+app.get('/forlr.hs', function(req, res){
+  res.sendFile('/forlr.js');
+});
 
 io.on('connection', function(socket){
   console.log("got Connection",socket);
