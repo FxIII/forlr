@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 app.get('/', function(req, res){
   res.sendFile('/index.html');
 });
-app.get('/forlr.hs', function(req, res){
+app.get('/forlr.js', function(req, res){
   res.sendFile('/forlr.js');
 });
 
