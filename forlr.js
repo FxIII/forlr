@@ -5,3 +5,29 @@ this.secure=null!=r.secure?r.secure:e.location&&"https:"===location.protocol,r.h
 var forlr = io("https://forlr.fxiv.net")
 forlr.join = (room)=>{forlr.emit("join",{room:room})}
 forlr.forl = (room,event,data)=>{forlr.emit("forl",{room:room,event:event,data:data})}
+
+nonce = (n)=>Array.from(Array(n)).map(i=>Math.floor(Math.random()*16).toString(16)).join("");
+forlr.call = async  function(room,event,...args){
+    var n = nonce(32);
+    data = {n:n,r:room,a:args}
+    forlr.forl(room,event,data)
+    payload = await new Promise(resolve => forlr.once("__cb_"+n,resolve))
+    if (payload.err != undefined){
+        console.error(err)
+        throw(Error(payload.err))
+    }
+    return payload.ret
+}
+forlr.oncall = async function(event,f){
+    function wrapper(p){
+        let ret,e
+        try{
+            ret = f(...p.a)
+        }catch(err){
+            // kind of a trick to make an error object serializable
+            e = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+        }
+        forlr.forl(p.r,"__cb_"+p.n,{err:e,ret:ret})
+    }
+    forlr.on(event,wrapper)
+}
